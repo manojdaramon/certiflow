@@ -6,6 +6,8 @@ import { checkRedisConnection } from "./config/redis.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import authRoutes from "./modules/auth/auth.routes.js";
+import batchRoutes from "./modules/batches/batches.routes.js";
+import approvalRoutes from "./modules/approvals/approvals.routes.js";
 
 const app = express();
 
@@ -46,6 +48,8 @@ apiRouter.get("/", (_req, res) => {
 
 // Modules
 apiRouter.use("/auth", authRoutes);
+apiRouter.use("/batches", batchRoutes);
+apiRouter.use("/batches", approvalRoutes);
 
 app.use("/api", apiRouter);
 

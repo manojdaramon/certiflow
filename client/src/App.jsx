@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react";
 
 /** Layout & Features */
-import Navbar from "./components/layout/Navbar.jsx";
+import AppLayout from "./components/layout/AppLayout.jsx";
 import Login from "./features/auth/Login.jsx";
 import Dashboard from "./features/dashboard/Dashboard.jsx";
 
@@ -12,6 +12,7 @@ import { fetchCurrentUser, logout, getStoredUser } from "./services/auth.js";
 const App = () => {
     const [user, setUser] = useState(getStoredUser());
     const [loading, setLoading] = useState(true);
+    const [activeTab, setActiveTab] = useState("batches");
 
     useEffect(() => {
         const verifySession = async () => {
@@ -38,26 +39,29 @@ const App = () => {
                 height: "100vh",
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: "var(--color-bg-main)",
-                color: "var(--color-text-muted)",
-                fontSize: "0.95rem"
+                backgroundColor: "#0f172a",
+                color: "#94a3b8",
+                fontSize: "0.95rem",
+                fontFamily: "sans-serif"
             }}>
                 Loading Pragati Skills Mission Portal...
             </div>
         );
     }
 
+    if (!user) {
+        return <Login onLoginSuccess={handleLoginSuccess} />;
+    }
+
     return (
-        <div>
-            <Navbar user={user} onLogout={handleLogout} />
-            <main>
-                {user ? (
-                    <Dashboard user={user} onLogout={handleLogout} />
-                ) : (
-                    <Login onLoginSuccess={handleLoginSuccess} />
-                )}
-            </main>
-        </div>
+        <AppLayout
+            user={user}
+            onLogout={handleLogout}
+            activeTab={activeTab}
+            onSelectTab={setActiveTab}
+        >
+            <Dashboard user={user} activeTab={activeTab} />
+        </AppLayout>
     );
 };
 

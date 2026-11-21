@@ -1,0 +1,85 @@
+.layoutWrapper {
+    display: flex;
+    min-height: 100vh;
+    background-color: #f1f5f9; /* Slate 100 */
+}
+
+.mainWrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow-x: hidden;
+}
+
+.topBar {
+    height: 56px;
+    background-color: #ffffff;
+    border-bottom: 1px solid var(--color-border);
+    padding: 0 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+}
+
+.breadCrumb {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+}
+
+.portalPill {
+    font-size: 0.725rem;
+    font-weight: 700;
+    background-color: #f1f5f9;
+    color: #475569;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-transform: uppercase;
+}
+
+.separator {
+    color: #94a3b8;
+}
+
+.currentSection {
+    font-weight: 600;
+    color: var(--color-text-main);
+}
+
+.topRight {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.roleChip {
+    font-size: 0.725rem;
+    font-weight: 700;
+    background-color: var(--color-primary-light);
+    color: var(--color-primary);
+    padding: 3px 10px;
+    border-radius: 4px;
+    letter-spacing: 0.5px;
+}
+
+.districtChip {
+    font-size: 0.725rem;
+    font-weight: 600;
+    background-color: #e2e8f0;
+    color: #334155;
+    padding: 3px 8px;
+    border-radius: 4px;
+}
+
+.contentArea {
+    flex: 1;
+    padding: 28px;
+    max-width: 1300px;
+    width: 100%;
+    margin: 0 auto;
+}

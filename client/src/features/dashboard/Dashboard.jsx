@@ -1,59 +1,44 @@
 /** React imports */
-import React from "react";
+import { useState } from "react";
+
+/** Features */
+import BatchList from "../batches/BatchList.jsx";
+import BatchDetail from "../batches/BatchDetail.jsx";
 
 /** Styles */
 import styles from "./dashboard.module.css";
 
-const Dashboard = ({ user, onLogout }) => {
-    const renderRoleSpecificContent = () => {
+const Dashboard = ({ user, activeTab = "batches" }) => {
+    const [selectedBatchId, setSelectedBatchId] = useState(null);
+
+    if (selectedBatchId) {
+        return (
+            <div className={styles.workspace}>
+                <BatchDetail
+                    batchId={selectedBatchId}
+                    onBack={() => setSelectedBatchId(null)}
+                    user={user}
+                />
+            </div>
+        );
+    }
+
+    const renderRoleHeader = () => {
         switch (user.role) {
             case "TRAINING_CENTRE":
                 return (
-                    <div className={styles.roleSection}>
-                        <div className={styles.welcomeCard}>
-                            <div className={styles.welcomeBadge}>Training Centre Portal</div>
-                            <h2 className={styles.welcomeTitle}>
-                                {user.trainingCentre?.name || "Training Centre Partner"}
-                            </h2>
-                            <p className={styles.welcomeSubtitle}>
-                                Affiliated Centre Code: <strong>{user.trainingCentre?.code || "TC-HYD-001"}</strong> | District: <strong>{user.district || "Hyderabad"}</strong>
-                            </p>
-                        </div>
-
-                        <div className={styles.statsGrid}>
-                            <div className={styles.statCard}>
-                                <div className={styles.statNumber}>0</div>
-                                <div className={styles.statLabel}>Active Batches</div>
-                            </div>
-                            <div className={styles.statCard}>
-                                <div className={styles.statNumber}>0</div>
-                                <div className={styles.statLabel}>In Review</div>
-                            </div>
-                            <div className={styles.statCard}>
-                                <div className={styles.statNumber}>0</div>
-                                <div className={styles.statLabel}>Certified Candidates</div>
-                            </div>
-                            <div className={styles.statCard}>
-                                <div className={styles.statNumber}>0</div>
-                                <div className={styles.statLabel}>Returned for Fix</div>
-                            </div>
-                        </div>
-
-                        <div className={styles.actionsCard}>
-                            <h3 className={styles.sectionHeading}>Batch Management Actions</h3>
-                            <p className={styles.sectionDesc}>
-                                Create a batch and upload candidates from your centre spreadsheet (Phase 3).
-                            </p>
-                            <div className={styles.buttonGroup}>
-                                <button className={styles.primaryBtn} disabled>
-                                    + Create New Batch
-                                </button>
-                                <button className={styles.secondaryBtn} disabled>
-                                    Upload Candidate CSV
-                                </button>
-                            </div>
-                            <div className={styles.phaseNotice}>
-                                Batch submission and all-or-nothing CSV spreadsheet import will unlock in <strong>Phase 3</strong>.
+                    <div className={styles.entityCard}>
+                        <div className={styles.entityDetails}>
+                            <div className={styles.entityTag}>Accredited Training Centre</div>
+                            <h1 className={styles.entityName}>
+                                {user.trainingCentre?.name || "Apex Skill Academy - Hyderabad"}
+                            </h1>
+                            <div className={styles.entityMeta}>
+                                <span>Centre Code: <strong>{user.trainingCentre?.code || "TC-HYD-001"}</strong></span>
+                                <span className={styles.dot}>•</span>
+                                <span>District: <strong>{user.district || "Hyderabad"}</strong></span>
+                                <span className={styles.dot}>•</span>
+                                <span>Authorised Person: <strong>{user.name}</strong></span>
                             </div>
                         </div>
                     </div>
@@ -61,55 +46,32 @@ const Dashboard = ({ user, onLogout }) => {
 
             case "DISTRICT_OFFICER":
                 return (
-                    <div className={styles.roleSection}>
-                        <div className={styles.welcomeCard}>
-                            <div className={styles.welcomeBadge}>District Review Portal</div>
-                            <h2 className={styles.welcomeTitle}>{user.district} District Office</h2>
-                            <p className={styles.welcomeSubtitle}>
-                                Logged in as Officer: <strong>{user.name}</strong> ({user.email})
-                            </p>
-                        </div>
-
-                        <div className={styles.policyAlert}>
-                            <strong>Dual-Officer Consensus Rule:</strong> Every batch submitted within this district requires independent verification and approval from <strong>two different district officers</strong> before advancing.
-                        </div>
-
-                        <div className={styles.actionsCard}>
-                            <h3 className={styles.sectionHeading}>Pending District Reviews</h3>
-                            <p className={styles.sectionDesc}>
-                                Batches awaiting first or second district officer approval will appear here.
-                            </p>
-                            <div className={styles.emptyState}>
-                                No batches currently pending district review.
+                    <div className={styles.entityCard}>
+                        <div className={styles.entityDetails}>
+                            <div className={styles.entityTag}>District Regulatory Office</div>
+                            <h1 className={styles.entityName}>{user.district} District Verification Cell</h1>
+                            <div className={styles.entityMeta}>
+                                <span>Review Officer: <strong>{user.name}</strong> ({user.email})</span>
+                                <span className={styles.dot}>•</span>
+                                <span>Jurisdiction: <strong>{user.district} District</strong></span>
                             </div>
-                            <div className={styles.phaseNotice}>
-                                Dual-officer approval workflows, concurrency controls, and return-for-fix features will unlock in <strong>Phase 4</strong>.
-                            </div>
+                        </div>
+                        <div className={styles.policyNotice}>
+                            <strong>Consensus Requirement:</strong> 2 distinct district officers must independently approve each batch.
                         </div>
                     </div>
                 );
 
             case "QUALITY_TEAM":
                 return (
-                    <div className={styles.roleSection}>
-                        <div className={styles.welcomeCard}>
-                            <div className={styles.welcomeBadge}>Quality Assurance Portal</div>
-                            <h2 className={styles.welcomeTitle}>State Quality Scrutiny Wing</h2>
-                            <p className={styles.welcomeSubtitle}>
-                                Reviewer: <strong>{user.name}</strong> | Scope: State-Wide Quality Audit
-                            </p>
-                        </div>
-
-                        <div className={styles.actionsCard}>
-                            <h3 className={styles.sectionHeading}>High-Volume Batch Queue</h3>
-                            <p className={styles.sectionDesc}>
-                                Batches with large candidate numbers are routed here for secondary quality scrutiny before state authorization.
-                            </p>
-                            <div className={styles.emptyState}>
-                                Queue is clear. No high-volume batches pending quality inspection.
-                            </div>
-                            <div className={styles.phaseNotice}>
-                                Quality scrutiny thresholds and approval routing unlock in <strong>Phase 4</strong>.
+                    <div className={styles.entityCard}>
+                        <div className={styles.entityDetails}>
+                            <div className={styles.entityTag}>Quality Assurance & Audit</div>
+                            <h1 className={styles.entityName}>State Quality Scrutiny Directorate</h1>
+                            <div className={styles.entityMeta}>
+                                <span>Auditor: <strong>{user.name}</strong></span>
+                                <span className={styles.dot}>•</span>
+                                <span>Audit Scope: <strong>High-Volume Candidate Batches (&gt; 25)</strong></span>
                             </div>
                         </div>
                     </div>
@@ -117,63 +79,31 @@ const Dashboard = ({ user, onLogout }) => {
 
             case "STATE_OFFICE":
                 return (
-                    <div className={styles.roleSection}>
-                        <div className={styles.welcomeCard}>
-                            <div className={styles.welcomeBadge}>State Directorate Portal</div>
-                            <h2 className={styles.welcomeTitle}>Pragati Skills Mission Directorate</h2>
-                            <p className={styles.welcomeSubtitle}>
-                                Executive Administrator: <strong>{user.name}</strong>
-                            </p>
-                        </div>
-
-                        <div className={styles.statsGrid}>
-                            <div className={styles.statCard}>
-                                <div className={styles.statNumber}>0</div>
-                                <div className={styles.statLabel}>Awaiting Final Approval</div>
-                            </div>
-                            <div className={styles.statCard}>
-                                <div className={styles.statNumber}>0</div>
-                                <div className={styles.statLabel}>SLA Delayed / Stuck</div>
-                            </div>
-                            <div className={styles.statCard}>
-                                <div className={styles.statNumber}>0</div>
-                                <div className={styles.statLabel}>Total Issued</div>
-                            </div>
-                            <div className={styles.statCard}>
-                                <div className={styles.statNumber}>0</div>
-                                <div className={styles.statLabel}>Revoked / Cancelled</div>
-                            </div>
-                        </div>
-
-                        <div className={styles.actionsCard}>
-                            <h3 className={styles.sectionHeading}>State Executive Controls</h3>
-                            <p className={styles.sectionDesc}>
-                                Final certificate issuance authority, revocation management, and stuck batch escalation.
-                            </p>
-                            <div className={styles.phaseNotice}>
-                                Certificate issuance, PDF generation, and cancellation management unlock in <strong>Phases 5 & 6</strong>.
+                    <div className={styles.entityCard}>
+                        <div className={styles.entityDetails}>
+                            <div className={styles.entityTag}>State Directorate Executive</div>
+                            <h1 className={styles.entityName}>Pragati Skills Mission — Directorate</h1>
+                            <div className={styles.entityMeta}>
+                                <span>Executive Administrator: <strong>{user.name}</strong></span>
+                                <span className={styles.dot}>•</span>
+                                <span>Authority: <strong>Final Certificate Issuance & Revocation</strong></span>
                             </div>
                         </div>
                     </div>
                 );
 
             default:
-                return <div>Unknown role</div>;
+                return null;
         }
     };
 
     return (
-        <div className={styles.dashboardContainer}>
-            <div className={styles.headerRow}>
-                <div>
-                    <h1 className={styles.pageTitle}>Portal Dashboard</h1>
-                    <p className={styles.pageSubtitle}>
-                        Official Session: <strong>{user.name}</strong> ({user.email})
-                    </p>
-                </div>
-            </div>
+        <div className={styles.workspace}>
+            {renderRoleHeader()}
 
-            {renderRoleSpecificContent()}
+            <div className={styles.sectionArea}>
+                <BatchList user={user} onSelectBatch={setSelectedBatchId} />
+            </div>
         </div>
     );
 };
