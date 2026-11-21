@@ -53,16 +53,15 @@ The problem statement outlines operational needs that require concrete engineeri
                      |                               |
     PostgreSQL Row   |                               | Session & Cache
     Locks & CRUD     v                               v
- +-----------------------------+   +-------------------------------------+
- |   PostgreSQL 16 Database    |   |               Redis 7               |
- |   (Prisma ORM + Migrations) |   |  - Session caching & rate limiting  |
- |   - Immutable Audit Logs    |   +-------------------------------------+
+ +-----------------------------+    
+ |   PostgreSQL 16 Database    |    
+ |   (Prisma ORM + Migrations) |     
+ |   - Immutable Audit Logs    |    
  |   - Batch State Machine     |
  |   - Candidates & Creds      |
  +-----------------------------+
 ```
 
-### 2.2 Background Architecture Note (Redis + BullMQ Selection)
 As mandated by the technical evaluation criteria, the background architecture is designed around **Redis 7** and **BullMQ**:
 - **Why Redis + BullMQ:** Provides atomic job locks, deterministic deduplication (`jobId`), and built-in exponential backoff without requiring the heavy operational footprint of a dedicated Kafka or RabbitMQ cluster.
 
@@ -175,18 +174,7 @@ All demo accounts share the password: `Password123!`
 
 ## 5. AI Usage & Verification
 
-In accordance with problem statement expectations, AI tools were utilized with strict human engineering review:
-
-- **Where AI was used:**
-  - Scaffolding TypeScript boilerplate interfaces and Zod validation schemas.
-  - Generating synthetic, realistic candidate CSV records for testing valid and invalid batch edge cases.
-  - Drafting initial CSS module rules and layout templates.
-
-- **How output was checked & verified:**
-  - Every line of generated code was inspected and verified against the problem statement's non-negotiable rules.
-  - Verified that plain CSS modules were strictly used instead of Tailwind or utility classes.
-  - Verified that database queries enforce relational integrity and that concurrent approval race conditions are mitigated with PostgreSQL row-level locks.
-  - Verified that API endpoints return proper HTTP status codes (`400 Bad Request` on invalid CSV, `409 Conflict` on duplicate approval, `403 Forbidden` on role/district boundary violations).
+Used chatgpt for implementation plan and Antigravity IDE for AI assisted development
 
 ---
 
