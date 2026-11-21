@@ -5,6 +5,7 @@ import { checkDatabaseConnection } from "./config/database.js";
 import { checkRedisConnection } from "./config/redis.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import authRoutes from "./modules/auth/auth.routes.js";
 
 const app = express();
 
@@ -32,7 +33,7 @@ app.get("/health", async (_req, res) => {
     });
 });
 
-// Root API router placeholder for modules
+// Root API router
 const apiRouter = express.Router();
 
 apiRouter.get("/", (_req, res) => {
@@ -42,6 +43,9 @@ apiRouter.get("/", (_req, res) => {
         version: "1.0.0"
     });
 });
+
+// Modules
+apiRouter.use("/auth", authRoutes);
 
 app.use("/api", apiRouter);
 

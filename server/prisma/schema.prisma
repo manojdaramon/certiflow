@@ -14,14 +14,171 @@ enum Role {
     STATE_OFFICE
 }
 
+enum BatchStatus {
+    DRAFT
+    SUBMITTED
+    UNDER_DISTRICT_REVIEW
+    UNDER_QUALITY_REVIEW
+    UNDER_STATE_REVIEW
+    APPROVED
+    REJECTED
+    RETURNED
+}
+
+enum ApprovalStage {
+    DISTRICT_FIRST
+    DISTRICT_SECOND
+    QUALITY_REVIEW
+    STATE_FINAL
+}
+
+enum ApprovalDecision {
+    APPROVED
+    REJECTED
+    RETURNED
+}
+
+enum CertificateStatus {
+    ISSUED
+    CANCELLED
+}
+
+enum DeliveryStatus {
+    PENDING
+    SENT
+    DELIVERED
+    FAILED
+}
+
 model User {
+    id               String          @id @default(uuid())
+    name             String
+    email            String          @unique
+    passwordHash     String
+    role             Role
+    district         String?
+    trainingCentreId String?
+    trainingCentre   TrainingCentre? @relation(fields: [trainingCentreId], references: [id])
+    createdAt        DateTime        @default(now())
+    updatedAt        DateTime        @updatedAt
+
+    approvals        Approval[]
+    auditLogs        AuditLog[]
+    cancelledCerts   Certificate[]   @relation("CancelledBy")
+
+    @@map("users")
+}
+
+model TrainingCentre {
     id        String   @id @default(uuid())
+    code      String   @unique
     name      String
-    email     String   @unique
-    role      Role
-    district  String?
+    district  String
+    address   String?
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
-    @@map("users")
+    users     User[]
+    batches   Batch[]
+
+    @@map("training_centres")
+}
+
+model Batch {
+    id               String      @id @default(uuid())
+    batchNumber      String      @unique
+    courseName       String
+    trainingCentreId String
+    trainingCentre   TrainingCentre @relation(fields: [trainingCentreId], references: [id])
+    district         String
+    status           BatchStatus @default(DRAFT)
+    currentVersion   Int         @default(1)
+    candidateCount   Int         @default(0)
+    submittedAt      DateTime?
+    approvedAt       DateTime?
+    createdAt        DateTime    @default(now())
+    updatedAt        DateTime    @updatedAt
+
+    candidates       Candidate[]
+    approvals        Approval[]
+    certificates     Certificate[]
+
+    @@map("batches")
+}
+
+model Candidate {
+    id             String       @id @default(uuid())
+    batchId        String
+    batch          Batch        @relation(fields: [batchId], references: [id], onDelete: Cascade)
+    fullName       String
+    nationalId     String
+    phone          String
+    email          String?
+    grade          String
+    completionDate DateTime
+    createdAt      DateTime     @default(now())
+    updatedAt      DateTime     @updatedAt
+
+    certificate    Certificate?
+
+    @@unique([batchId, nationalId])
+    @@map("candidates")
+}
+
+model Approval {
+    id                String           @id @default(uuid())
+    batchId           String
+    batch             Batch            @relation(fields: [batchId], references: [id], onDelete: Cascade)
+    submissionVersion Int
+    stage             ApprovalStage
+    officerId         String
+    officer           User             @relation(fields: [officerId], references: [id])
+    decision          ApprovalDecision
+    reason            String?
+    createdAt         DateTime         @default(now())
+
+    @@unique([batchId, submissionVersion, stage, officerId])
+    @@map("approvals")
+}
+
+model Certificate {
+    id                 String            @id @default(uuid())
+    certificateNumber  String            @unique
+    verificationToken  String            @unique
+    batchId            String
+    batch              Batch             @relation(fields: [batchId], references: [id])
+    candidateId        String            @unique
+    candidate          Candidate         @relation(fields: [candidateId], references: [id])
+    status             CertificateStatus @default(ISSUED)
+    issuedAt           DateTime          @default(now())
+    cancelledAt        DateTime?
+    cancellationReason String?
+    cancelledById      String?
+    cancelledBy        User?             @relation("CancelledBy", fields: [cancelledById], references: [id])
+    pdfPath            String?
+    deliveryStatus     DeliveryStatus    @default(PENDING)
+    deliveryAttempts   Int               @default(0)
+    lastDeliveryError  String?
+    updatedAt          DateTime          @updatedAt
+
+    @@map("certificates")
+}
+
+model AuditLog {
+    id                String    @id @default(uuid())
+    actorId           String?
+    actor             User?     @relation(fields: [actorId], references: [id])
+    actorEmail        String
+    actorRole         Role
+    action            String
+    entityType        String
+    entityId          String
+    previousState     Json?
+    newState          Json?
+    reason            String?
+    submissionVersion Int?
+    ipAddress         String?
+    createdAt         DateTime  @default(now())
+
+    @@map("audit_logs")
 }
